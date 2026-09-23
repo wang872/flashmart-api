@@ -30,20 +30,6 @@
 
 金额一律用 **分（int）**，避免浮点误差。
 
-## 简历写法
-
-**中文**
-
-- 基于 FastAPI + SQLAlchemy 2 实现电商订单后端，覆盖注册登录、商品缓存、购物车、下单、取消与支付回调。
-- 下单使用乐观锁原子扣减库存，并用 `Idempotency-Key` 保证网络重试不产生重复订单。
-- 支付 Webhook 采用 HMAC-SHA256 验签与 `event_id` 去重，防止伪造回调和通道重复通知。
-- 商品列表使用可替换的 TTL 缓存接口（默认进程内，可平滑换成 Redis），金额以分为单位存储。
-
-**English**
-
-- Built a FastAPI e-commerce order API with JWT auth, cart checkout, optimistic-lock stock deduction, and idempotent order creation.
-- Implemented HMAC-signed payment webhooks with event-id deduplication and stock restore on cancel.
-- Used integer cents for money and a Redis-shaped TTL cache for product listings.
 
 ## 本地运行
 
@@ -89,12 +75,6 @@ $body = '{"event_id":"evt1","order_no":"替换订单号","amount_cent":1999,"sta
 | POST | `/payments/webhook` | 支付回调（需 `X-Payment-Signature`） |
 | GET | `/health` | 健康检查 |
 
-## 面试可讲点
 
-1. **乐观锁 vs 悲观锁**：高并发抢购用 `version` 条件更新，失败返回 409，避免长事务锁表。
-2. **幂等**：同一用户同一 Key 返回同一订单；支付事件用唯一 `event_id`。
-3. **钱**：整型分，禁止 float。
-4. **回调安全**：共享密钥 HMAC，不信任未签名 body。
-5. **缓存失效**：下单/取消后删除 `products:list`。
 
 生产环境请修改 `SECRET_KEY` 与 `PAYMENT_WEBHOOK_SECRET`。
